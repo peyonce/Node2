@@ -51,6 +51,19 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
                     .catch(err => sendJSON(res, { error: err.message }, 500));
                 break;
 
+            case '/async':
+                (async () => {
+                    try {
+                        const data = await getWeatherAndNewsAsync();
+                        sendJSON(res, data);
+                    } catch (err) {
+                        sendJSON(res, { error: (err as Error).message }, 500);
+                    }
+                })();
+                break;
+
+
+
 
 
 
