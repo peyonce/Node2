@@ -21,6 +21,40 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
             case '/':
                 sendText(res, 'Welcome to Async Weather  & News Dashboard!');
                 break;
+
+            case '/callback':
+                getWeatherAndNewsCalls((err, data) => {
+                    if (err) {
+                        sendJSON(res, { error: err.message }, 500);
+                    } else {
+                        sendJSON(res, data)
+                    }
+                });
+                break;
+
+            case '/promise/all':
+                getAllSimultaneously()
+                    .then(([weather, news]) => {
+                        sendJSON(res, {
+                            weather: weather.current_weather,
+                            news: news.posts.slice(0, 3).map((p: any) => p.title),
+                        });
+                    })
+                    .catch(err => sendJSON(res, { error: err.message }, 500));
+                break;
+
+            case '/promise/race':
+                getFastest()
+                    .then(data => {
+                        sendJSON(res, data);
+                    })
+                    .catch(err => sendJSON(res, { error: err.message }, 500));
+                break;
+
+
+
+
+
         }
     }
 }
