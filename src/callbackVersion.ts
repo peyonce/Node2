@@ -15,6 +15,11 @@ function fetchData(url: string, callback: (error: Error | null, data?: any) => v
             }
         });
     }).on('error', err => callback(err));
+}
 
-
+export function getWeatherAndNews(callback: (error: Error | null, result?: any) => void) {
+    fetchData(WEATHER_URL, (err, weatherData) => {
+        if (err) return callback(err);
+    }
+    )
 }
