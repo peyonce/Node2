@@ -19,3 +19,16 @@ function fetchData(url: string): Promise<any> {
         }).on('error', reject);
     });
 }
+
+export async function getWeatherAndNews() {
+    try {
+        const weather = await fetchData(WEATHER_URL);
+        const news = await fetchData(NEWS_URL);
+        return {
+            weather: weather.current_weather,
+            news: news.posts.slice(0, 3).map((p: any) => p.title),
+        };
+    } catch (error) {
+        throw new Error('Error fetching data: ' + (error as Error).message);
+    }
+}
