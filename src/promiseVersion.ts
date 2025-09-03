@@ -17,6 +17,23 @@ function fetchData(url: string): Promise<any> {
             })
         }).on('eror', reject);
     })
+}
 
+export async function getWeatherAndNews(): Promise<any> {
+    const weather = await fetchData(WEATHER_URL);
+    const news = await fetchData(NEWS_URL);
+
+    return {
+        weather: weather.current_weather,
+        news: news.posts.slice(0, 3).map((p: any) => p.title),
+    }
+}
+
+export async function getAllSimultaneously(): Promise<any[]> {
+    return Promise.all([fetchData(WEATHER_URL), fetchData(NEWS_URL)]);
+}
+
+export async function getFastest(): Promise<any> {
+    return Promise.race([fetchData(WEATHER_URL), fetchData(NEWS_URL)]);
 }
 
