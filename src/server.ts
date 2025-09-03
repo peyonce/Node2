@@ -62,13 +62,16 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
                 })();
                 break;
 
-
-
-
-
-
-
+            default:
+                sendText(res, 'Not Found', 404);
         }
+    } else {
+        sendText(res, 'Method Not Allowed', 404);
     }
-}
-)
+});
+
+server.listen(PORT, () => {
+    console.log('Server running at http://localhost:${PORT}');
+});
+
+
