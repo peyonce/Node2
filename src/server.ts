@@ -3,7 +3,7 @@ import { getWeatherAndNews as getWeatherAndNewsCalls } from './callbackVersion';
 import { getWeatherAndNews as getWeatherAndNewsPromise, getAllSimultaneously, getFastest } from './promiseVersion';
 import { getWeatherAndNews as getWeatherAndNewsAsync } from './asyncAwaitVersion';
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000
 
 function sendJSON(res: ServerResponse, data: any, statusCode = 200) {
     res.writeHead(statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -19,7 +19,7 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
     if (req.method === 'GET') {
         switch (req.url) {
             case '/':
-                sendText(res, 'Welcome to Async Weather  & News Dashboard!');
+                sendText(res, 'Welcome to Async Weather & News Dashboard!');
                 break;
 
             case '/callback':
@@ -27,7 +27,7 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
                     if (err) {
                         sendJSON(res, { error: err.message }, 500);
                     } else {
-                        sendJSON(res, data)
+                        sendJSON(res, data);
                     }
                 });
                 break;
@@ -35,20 +35,34 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
             case '/promise/all':
                 getAllSimultaneously()
                     .then(([weather, news]) => {
+                        console.log('Weather data:', weather);
+                        console.log('News data:', news);
+
+
+                        if (!weather?.current_weather || !news?.posts) {
+                            throw new Error('API response missing expected fields');
+                        }
+
                         sendJSON(res, {
                             weather: weather.current_weather,
                             news: news.posts.slice(0, 3).map((p: any) => p.title),
                         });
                     })
-                    .catch(err => sendJSON(res, { error: err.message }, 500));
+                    .catch(err => {
+                        console.error('Error in /promise/all:', err);
+                        sendJSON(res, { error: err.message }, 500);
+                    });
                 break;
 
             case '/promise/race':
                 getFastest()
                     .then(data => {
+                        console.log('Fastest data', data);
                         sendJSON(res, data);
                     })
-                    .catch(err => sendJSON(res, { error: err.message }, 500));
+                    .catch(err => {
+                        sendJSON(res, { error: err.message }, 500);
+                    });
                 break;
 
             case '/async':
@@ -66,13 +80,10 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
                 sendText(res, 'Not Found', 404);
         }
     } else {
-        sendText(res, 'Method Not Allowed', 405);
+        sendText(res, 'Not Allowed', 405);
     }
 });
 
 server.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
-
 });
-
-
